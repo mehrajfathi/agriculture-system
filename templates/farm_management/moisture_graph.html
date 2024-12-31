@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>Moisture Analysis
+            </h3>
+            <a href="{% url 'farm_management:dashboard' %}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Plot Details</h5>
+                            <p class="mb-1"><strong>Crop:</strong> {{ plot.crop.get_name_display }}</p>
+                            <p class="mb-1"><strong>Current Moisture:</strong> {{ plot.soil_moisture }}%</p>
+                            <p class="mb-0"><strong>Soil Type:</strong> {{ plot.get_soil_type_display }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Moisture Ranges</h5>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-danger rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                <span>Below 30% - Too Dry</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-success rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                <span>30-60% - Optimal</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                                <span>Above 60% - Too Wet</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-9">
+                    <div id="moisture-graph"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+    // Render the graph
+    var graphData = {{ graph_json|safe }};
+    Plotly.newPlot('moisture-graph', graphData.data, graphData.layout);
+</script>
+
+<style>
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+    }
+    
+    #moisture-graph {
+        height: 500px;
+    }
+</style>
+{% endblock %}

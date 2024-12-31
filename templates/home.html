@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 mb-4">Welcome to Agriculture Monitoring System</h1>
+        <p class="lead mb-4">Monitor your farm, track soil moisture, and manage your crops efficiently.</p>
+        
+        {% if user.is_authenticated %}
+            <div class="d-grid gap-3 d-md-flex justify-content-center">
+                <a href="{% url 'farm_management:dashboard' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="{% url 'marketplace:marketplace' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-store me-2"></i>Visit Marketplace
+                </a>
+            </div>
+        {% else %}
+            <div class="d-grid gap-3 d-md-flex justify-content-center">
+                <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                <a href="{% url 'users:register' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Register
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h3>Monitor Crops</h3>
+                    <p>Track soil moisture and crop health in real-time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-store fa-3x text-success mb-3"></i>
+                    <h3>Marketplace</h3>
+                    <p>Buy and sell agricultural products directly.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-info mb-3"></i>
+                    <h3>Community</h3>
+                    <p>Connect with other farmers and share experiences.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s;
+    border-radius: 1rem;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+}
+.display-4 {
+    font-weight: 600;
+}
+</style>
+{% endblock %} 

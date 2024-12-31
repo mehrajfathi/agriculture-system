@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Farm Dashboard</h1>
+    
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Farm Plots</h5>
+                    <h2 class="mb-0">{{ plot_count }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Area</h5>
+                    <h2 class="mb-0">{{ total_area }} acres</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Crops</h5>
+                    <h2 class="mb-0">{{ crop_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Farm Plots -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Farm Plots</h5>
+                    <a href="{% url 'farm_management:farm_plot_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Add Plot
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if farm_plots %}
+                        <div class="list-group">
+                            {% for plot in farm_plots %}
+                            <a href="{% url 'farm_management:farm_plot_update' plot.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ plot.name }}</h6>
+                                    <small>{{ plot.size }} acres</small>
+                                </div>
+                                <small class="text-muted">{{ plot.location }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No farm plots added yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activities -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="list-group">
+                            {% for activity in recent_activities %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ activity.get_activity_type_display }}</h6>
+                                    <small>{{ activity.date }}</small>
+                                </div>
+                                <p class="mb-1">{{ activity.description }}</p>
+                                <small class="text-muted">{{ activity.crop.name }} at {{ activity.crop.farm_plot.name }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent activities.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Farm Overview</h5>
+            <p class="card-text">Total Area: {{ total_area }} acres</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+.list-group-item:first-child {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+.list-group-item:last-child {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+</style>
+{% endblock %} 

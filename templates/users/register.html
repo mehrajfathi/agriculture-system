@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Register</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger">{{ form.password1.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">I am a:</label>
+                            <div class="btn-group" role="group">
+                                {% for radio in form.user_type %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            {{ form.address }}
+                        </div>
+
+                        <div class="farm-fields" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Farm Size (in acres)</label>
+                                {{ form.farm_size }}
+                                {% if form.farm_size.errors %}
+                                    <div class="text-danger">{{ form.farm_size.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Farm Location</label>
+                                {{ form.farm_location }}
+                                {% if form.farm_location.errors %}
+                                    <div class="text-danger">{{ form.farm_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-secondary">Already have an account?</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 1rem;
+    border: none;
+}
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+.form-control {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+}
+.form-check-inline {
+    margin-right: 1.5rem;
+}
+</style>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeInputs = document.querySelectorAll('input[name="user_type"]');
+    const farmFields = document.querySelector('.farm-fields');
+
+    function toggleFarmFields() {
+        const selectedType = document.querySelector('input[name="user_type"]:checked').value;
+        farmFields.style.display = selectedType === 'farmer' ? 'block' : 'none';
+    }
+
+    userTypeInputs.forEach(input => {
+        input.addEventListener('change', toggleFarmFields);
+    });
+
+    // Initial toggle
+    toggleFarmFields();
+});
+</script>
+{% endblock %}
+{% endblock %} 

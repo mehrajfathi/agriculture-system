@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Product</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors|join:", " }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <!-- Title Field -->
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    Product Title <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description Field -->
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Price and Quantity Fields -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">
+                                    Price (₹) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.price.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                                    Quantity <span class="text-danger">*</span>
+                                </label>
+                                {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.quantity.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Unit Field -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.unit.id_for_label }}" class="form-label">
+                                    Unit <span class="text-danger">*</span>
+                                </label>
+                                {{ form.unit }}
+                                {% if form.unit.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.unit.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Image Field -->
+                            <div class="col-md-12 mb-4">
+                                <label for="{{ form.image.id_for_label }}" class="form-label">
+                                    Product Image
+                                </label>
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.image.errors|join:", " }}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Upload a clear image of your product (optional)</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'marketplace:marketplace' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> 
+                                {% if form.instance.pk %}Update{% else %}Add{% endif %} Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 15px;
+    border: none;
+}
+.card-header {
+    border-top-left-radius: 15px !important;
+    border-top-right-radius: 15px !important;
+    background-color: #198754 !important;
+}
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25,135,84,.25);
+}
+.btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+}
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+textarea.form-control {
+    min-height: 120px;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="weather-widget">
+        <h2>Current Weather</h2>
+        <div class="weather-info">
+            <p>Temperature: {{ weather_data.temp }}°C</p>
+            <p>Humidity: {{ weather_data.humidity }}%</p>
+            <p>Conditions: {{ weather_data.conditions }}</p>
+        </div>
+    </div>
+
+    <div class="farm-plots">
+        <h2>Your Farm Plots</h2>
+        <div class="plots-grid">
+            {% for plot in plots %}
+            <div class="plot-card">
+                <h3>{{ plot.crop.name }}</h3>
+                <p>Soil Moisture: {{ plot.soil_moisture }}%</p>
+                <p>Soil Type: {{ plot.soil_type }}</p>
+                <p>Planted: {{ plot.planting_date }}</p>
+                <div class="plot-actions">
+                    <a href="{% url 'update_plot' plot.id %}" class="btn">Update</a>
+                    <a href="{% url 'delete_plot' plot.id %}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No farm plots added yet. <a href="{% url 'add_plot' %}">Add your first plot</a></p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

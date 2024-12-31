@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Complete Payment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Order Summary</h5>
+                        <p><strong>Product:</strong> {{ order.product.title }}</p>
+                        <p><strong>Quantity:</strong> {{ order.quantity }} {{ order.product.unit }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ order.formatted_total }}</p>
+                        <p><strong>Shipping Address:</strong><br>{{ order.shipping_address|linebreaks }}</p>
+                    </div>
+                    
+                    <button id="payButton" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-credit-card me-2"></i>Pay Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "Agriculture Marketplace",
+        "description": "Order #{{ order.id }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "callback_url": "{{ callback_url }}",
+        "prefill": {
+            "name": "{{ order.buyer.get_full_name|default:order.buyer.username }}",
+            "email": "{{ order.buyer.email }}",
+            "contact": "{{ order.buyer.phone_number|default:'' }}"
+        },
+        "theme": {
+            "color": "#0d6efd"
+        },
+        "modal": {
+            "ondismiss": function() {
+                window.location.href = "{% url 'marketplace:my_orders' %}";
+            }
+        }
+    };
+    
+    var rzp = new Razorpay(options);
+    document.getElementById('payButton').onclick = function(e) {
+        rzp.open();
+        e.preventDefault();
+    };
+});
+</script>
+
+<style>
+.card {
+    border-radius: 1rem;
+    border: none;
+}
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+</style>
+{% endblock %} 

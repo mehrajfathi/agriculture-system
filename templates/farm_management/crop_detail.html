@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'farm_management:crop_knowledge' %}">Crop Knowledge</a></li>
+            <li class="breadcrumb-item active">{{ crop.get_name_display }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="mb-4">{{ crop.get_name_display }}</h2>
+                    <div class="crop-details">
+                        <div class="detail-section mb-4">
+                            <h5><i class="fas fa-info-circle me-2"></i>Description</h5>
+                            <p>{{ crop.description }}</p>
+                        </div>
+
+                        <div class="detail-section mb-4">
+                            <h5><i class="fas fa-temperature-high me-2"></i>Climate Requirements</h5>
+                            <p>{{ crop.climate_requirements }}</p>
+                        </div>
+
+                        <div class="detail-section mb-4">
+                            <h5><i class="fas fa-clock me-2"></i>Growing Season</h5>
+                            <p>{{ crop.growing_season }}</p>
+                        </div>
+
+                        <div class="detail-section mb-4">
+                            <h5><i class="fas fa-tint me-2"></i>Water Requirements</h5>
+                            <p>{{ crop.water_requirements }}</p>
+                        </div>
+
+                        <div class="detail-section mb-4">
+                            <h5><i class="fas fa-flask me-2"></i>Fertilizer Requirements</h5>
+                            <p>{{ crop.fertilizer_requirements }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Quick Facts</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-layer-group me-2"></i>
+                                    <strong>Soil Type:</strong> {{ crop.soil_type }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    <strong>Growing Period:</strong> {{ crop.growing_season }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'farm_management:add_plot' %}" class="btn btn-success w-100">
+                            <i class="fas fa-plus me-2"></i>Start Growing This Crop
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .detail-section h5 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .detail-section p {
+        color: #555;
+        line-height: 1.6;
+    }
+
+    .card {
+        border-radius: 1rem;
+        border: none;
+    }
+
+    .btn-success {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+    }
+</style>
+{% endblock %} 

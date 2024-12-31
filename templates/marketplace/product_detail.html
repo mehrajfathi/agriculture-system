@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'marketplace:marketplace' %}">Marketplace</a></li>
+            <li class="breadcrumb-item active">{{ product.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top product-image" alt="{{ product.title }}">
+                {% else %}
+                    <div class="bg-light text-center py-5">
+                        <i class="fas fa-seedling fa-5x text-muted"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">{{ product.title }}</h2>
+                    
+                    <div class="price-box mb-4 p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">₹{{ price }}</h4>
+                            <span class="badge bg-success">per {{ product.unit }}</span>
+                        </div>
+                    </div>
+
+                    <div class="description-box mb-4">
+                        <h5>Description</h5>
+                        <p class="text-muted">{{ product.description|linebreaks }}</p>
+                    </div>
+
+                    <div class="seller-box mb-4 p-3 bg-light rounded">
+                        <h5 class="mb-3">Seller Information</h5>
+                        <p class="mb-2">
+                            <i class="fas fa-user me-2"></i>{{ product.seller.username }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ product.seller.address }}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-phone me-2"></i>{{ product.seller.phone_number }}
+                        </p>
+                    </div>
+
+                    <form method="post" class="purchase-form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Purchase Quantity ({{ product.unit }})</label>
+                            <input type="number" name="quantity" class="form-control form-control-lg" 
+                                   min="0.1" max="{{ product.quantity }}" step="0.1" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Shipping Address</label>
+                            <textarea name="shipping_address" class="form-control form-control-lg" 
+                                      rows="3" required placeholder="Enter your complete shipping address"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user == product.seller %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Product Management</h5>
+            <div class="d-flex gap-2">
+                <a href="{% url 'marketplace:edit_product' product.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit me-2"></i>Edit Product
+                </a>
+                <a href="{% url 'marketplace:delete_product' product.id %}" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Delete Product
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.product-image {
+    height: 400px;
+    object-fit: cover;
+}
+.price-box {
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+}
+.seller-box {
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+}
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: normal;
+}
+.form-control {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+.form-control-lg {
+    font-size: 1rem;
+}
+.btn-lg {
+    padding: 1rem;
+    border-radius: 0.75rem;
+}
+.description-box {
+    border-radius: 0.75rem;
+}
+</style>
+{% endblock %} 

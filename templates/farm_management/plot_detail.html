@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'farm_management:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">{{ plot.crop.name|title }} Plot</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Plot Information -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ plot.crop.name|title }} Plot Details</h3>
+                    <div class="btn-group">
+                        <a href="{% url 'farm_management:edit_plot' plot.id %}" class="btn btn-light btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="{% url 'farm_management:delete_plot' plot.id %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- Current Status -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <h5 class="text-primary mb-3">Current Status</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span><i class="fas fa-water text-primary me-2"></i>Soil Moisture</span>
+                                    <span class="badge bg-primary">{{ plot.soil_moisture }}%</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 10px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ plot.soil_moisture }}%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span><i class="fas fa-thermometer-half text-success me-2"></i>Soil Type</span>
+                                    <span class="badge bg-success">{{ plot.soil_type|title }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Planting Information -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light">
+                                <h5 class="text-success mb-3">Planting Information</h5>
+                                <p class="mb-2">
+                                    <i class="fas fa-calendar text-success me-2"></i>
+                                    <strong>Planted:</strong> {{ plot.planting_date }}
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-clock text-success me-2"></i>
+                                    <strong>Days Since Planting:</strong> 
+                                    {{ plot.planting_date|timesince }}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-seedling text-success me-2"></i>
+                                    <strong>Growing Season:</strong> {{ plot.crop.growing_season }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Moisture Graph -->
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Moisture Levels Over Time</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div style="height: 300px;">
+                                        <canvas id="moistureChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Information -->
+        <div class="col-lg-4">
+            <!-- Crop Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Crop Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <strong>Crop Type:</strong><br>
+                            <span class="text-success">{{ plot.crop.name|title }}</span>
+                        </li>
+                        <li class="mb-3">
+                            <strong>Growing Season:</strong><br>
+                            <span>{{ plot.crop.growing_season }}</span>
+                        </li>
+                        <li class="mb-3">
+                            <strong>Recommended Soil:</strong><br>
+                            <span>{{ plot.crop.soil_type }}</span>
+                        </li>
+                        <li>
+                            <strong>Plot Created:</strong><br>
+                            <span>{{ plot.created_at|date:"F j, Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'farm_management:generate_report' plot.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-chart-bar me-2"></i>Generate Report
+                        </a>
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#alertModal">
+                            <i class="fas fa-bell me-2"></i>Set Moisture Alert
+                        </button>
+                        <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#historyModal">
+                            <i class="fas fa-history me-2"></i>View History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Modal -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Moisture Alerts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="alertForm">
+                    <div class="mb-3">
+                        <label class="form-label">Minimum Moisture Level (%)</label>
+                        <input type="number" class="form-control" id="minMoisture" min="0" max="100" value="30">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Maximum Moisture Level (%)</label>
+                        <input type="number" class="form-control" id="maxMoisture" min="0" max="100" value="70">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveAlertSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Moisture History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <select class="form-select" id="historyDays" onchange="loadHistory()">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                </div>
+                <div id="historyChartContainer" style="height: 400px;">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add console logs for debugging
+    console.log('Fetching moisture data...');
+    
+    fetch("{% url 'farm_management:moisture_graph' plot.id %}")
+        .then(response => {
+            console.log('Response received:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Data received:', data);
+            
+            const ctx = document.getElementById('moistureChart');
+            if (!ctx) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Soil Moisture %',
+                        data: data.moisture_levels,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '7-Day Moisture Levels',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Moisture Level (%)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date/Time'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching moisture data:', error);
+            // Display error message on the page
+            const chartContainer = document.getElementById('moistureChart').parentElement;
+            chartContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Error loading moisture data. Please try refreshing the page.
+                </div>
+            `;
+        });
+});
+
+function saveAlertSettings() {
+    const minMoisture = document.getElementById('minMoisture').value;
+    const maxMoisture = document.getElementById('maxMoisture').value;
+    
+    fetch("{% url 'farm_management:set_moisture_alert' plot.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            min_moisture: minMoisture,
+            max_moisture: maxMoisture
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('alertModal'));
+            modal.hide();
+            showToast('Success', data.message);
+        }
+    })
+    .catch(error => showToast('Error', 'Failed to save alert settings'));
+}
+
+let historyChart = null;
+
+function loadHistory() {
+    const days = document.getElementById('historyDays').value;
+    
+    fetch(`{% url 'farm_management:view_history' plot.id %}?days=${days}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Destroy existing chart if it exists
+            if (historyChart) {
+                historyChart.destroy();
+            }
+            
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Moisture Level (%)',
+                        data: data.moisture_levels,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: `Moisture History - Last ${days} Days`,
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Moisture Level (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date/Time'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading history:', error);
+            showToast('Error', 'Failed to load moisture history data');
+        });
+}
+
+// Load history when modal is shown
+document.getElementById('historyModal').addEventListener('shown.bs.modal', function() {
+    loadHistory();
+});
+
+// Clear chart when modal is hidden
+document.getElementById('historyModal').addEventListener('hidden.bs.modal', function() {
+    if (historyChart) {
+        historyChart.destroy();
+        historyChart = null;
+    }
+});
+
+function showToast(title, message) {
+    const toastEl = document.getElementById('featureToast');
+    const toast = new bootstrap.Toast(toastEl);
+    toastEl.querySelector('.toast-header strong').textContent = title;
+    toastEl.querySelector('.toast-body').textContent = message;
+    toast.show();
+}
+</script>
+
+<style>
+.card {
+    border-radius: 1rem;
+    border: none;
+}
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+}
+.progress {
+    border-radius: 0.5rem;
+}
+.progress-bar {
+    background-color: #0d6efd;
+}
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+.border {
+    border-radius: 0.5rem !important;
+}
+.toast {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.toast-header {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+.btn-outline-primary:hover, 
+.btn-outline-success:hover, 
+.btn-outline-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+.btn-outline-primary, 
+.btn-outline-success, 
+.btn-outline-info {
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-store me-2"></i>Marketplace</h2>
+        <div class="d-flex gap-2">
+            <form class="d-flex" method="get">
+                <input type="search" name="q" class="form-control me-2" placeholder="Search products..." value="{{ query }}">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            {% if user.is_authenticated %}
+                <a href="{% url 'marketplace:add_product' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add Product
+                </a>
+                <a href="{% url 'marketplace:my_orders' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag me-2"></i>My Orders
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                    {% else %}
+                        <div class="card-img-top bg-light text-center py-5">
+                            <i class="fas fa-seedling fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text text-muted">{{ product.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-0">
+                                    <strong>₹{{ product.price }}</strong> per {{ product.unit }}
+                                </p>
+                                <small class="text-muted">
+                                    {{ product.quantity }} {{ product.unit }} available
+                                </small>
+                            </div>
+                            <a href="{% url 'marketplace:product_detail' product.id %}" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Buy Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No products found.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 1rem;
+    border: none;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-img-top {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    height: 200px;
+    object-fit: cover;
+}
+.btn {
+    border-radius: 0.5rem;
+}
+.alert {
+    border-radius: 0.5rem;
+}
+</style>
+{% endblock %} 

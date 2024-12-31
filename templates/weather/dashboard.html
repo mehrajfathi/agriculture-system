@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="weather-dashboard">
+    <h2>Weather Dashboard</h2>
+    <div class="weather-info">
+        <div class="current-weather">
+            <h3>Current Weather</h3>
+            <p>Temperature: {{ weather_data.temperature }}°C</p>
+            <p>Humidity: {{ weather_data.humidity }}%</p>
+            <p>Wind Speed: {{ weather_data.wind_speed }} km/h</p>
+            <p>Conditions: {{ weather_data.conditions }}</p>
+        </div>
+    </div>
+    <div class="weather-actions">
+        <a href="{% url 'weather:forecast' %}" class="btn">View Forecast</a>
+        <a href="{% url 'weather:alerts' %}" class="btn">Weather Alerts</a>
+    </div>
+</div>
+{% endblock %} 
